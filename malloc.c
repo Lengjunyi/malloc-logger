@@ -9,16 +9,10 @@
 
 void *malloc(size_t size) {
     static void *(*real_malloc)(size_t);
-    static bool loading = false;
     static size_t total_allocation = 0;
 
-    if (loading) {
-        return mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
-    }
-    else if (!real_malloc) {
-        loading = true;
+    if (!real_malloc) {
         real_malloc = (void * (*)(size_t))dlsym(RTLD_NEXT, "malloc");
-        loading = false;
     }
     
     total_allocation += size;
